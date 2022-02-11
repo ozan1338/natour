@@ -5,17 +5,17 @@ const {getAllTours,createTour,getTour,updateTour,deleteTour} = require("./../con
 
 // router.param("id", checkId)
 
-const checkBody = (req,res,next) => {
-    if(!req.body.name || !req.body.price){
-        return res.status(400).send({
-            status: "fail"
-        })
-    }
+// const checkBody = (req,res,next) => {
+//     if(!req.body.name || !req.body.price){
+//         return res.status(400).send({
+//             status: "fail"
+//         })
+//     }
 
-    next()
-}
+//     next()
+// }
 
-router.route('/').get(getAllTours).post(checkBody, createTour)
+router.route('/').get(getAllTours).post(createTour)
 router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour)
 
 module.exports = router
