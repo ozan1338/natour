@@ -1,7 +1,16 @@
-const express = require("express")
-const router = express.Router()
+const express = require("express");
+const router = express.Router();
 
-const {getAllTours,createTour,getTour,updateTour,deleteTour,aliastTopTours} = require("./../controllers/tourController")
+const {
+  getAllTours,
+  createTour,
+  getTour,
+  updateTour,
+  deleteTour,
+  aliastTopTours,
+  getTourStats,
+  getMonthlyPlan
+} = require("./../controllers/tourController");
 
 // router.param("id", checkId)
 
@@ -15,8 +24,10 @@ const {getAllTours,createTour,getTour,updateTour,deleteTour,aliastTopTours} = re
 //     next()
 // }
 
-router.route('/top-5-cheap').get(aliastTopTours, getAllTours)
-router.route('/').get(getAllTours).post(createTour)
-router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour)
+router.route("/top-5-cheap").get(aliastTopTours, getAllTours);
+router.route("/tour-stats").get(getTourStats);
+router.route("/monthly-plan/:year").get(getMonthlyPlan);
+router.route("/").get(getAllTours).post(createTour);
+router.route("/:id").get(getTour).patch(updateTour).delete(deleteTour);
 
-module.exports = router
+module.exports = router;
