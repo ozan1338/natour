@@ -137,15 +137,25 @@ tourSchema.virtual('durationWeeks').get(function() {
 // })
 
 //Query Middleware 
-tourSchema.pre('find', function(next){
+tourSchema.pre(/^find/, function(next){
     this.start = Date.now()
     next()
 })
 
-tourSchema.post('find', function(doc, next){
+tourSchema.pre(/^find/, function(next){
+    this.populate({
+        path: 'guides',
+        select: '-__v -passwordChangeAt'
+    })
+    next()
+})
+
+tourSchema.post(/^find/, function(doc, next){
     console.log(`Query Took ${Date.now() - this.start} milisecond`)
     next()
 })
+
+
 
 //Aggregation Middleware
 // tourSchema.pre('aggregate', function(next){
