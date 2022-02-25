@@ -1,39 +1,28 @@
 const Review = require('./../model/reviewModel')
-const APIFeatures = require('./../utils/apiFeatures')
-const catchAsync = require('./../utils/catchAsync')
-const AppError = require('./../utils/appError')
+const factory = require('./handlerFactory')
 
-const getAllReviews = catchAsync(async (req,res,next) => {
-    let filter = {}
-    if (req.params.tourId) filter = {tour: req.params.tourId}
-
-    const reviews = await Review.find(filter)
-
-    res.status(200).json({
-        status:"success",
-        result: reviews.length,
-        data: {
-            reviews
-        }
-    })
-})
-
-const createReview = catchAsync(async (req,res,next) => {
+const setTourUserIds = (req,res,next) => {
     //Nested Route
     if(!req.body.tour) req.body.tour = req.params.tourId
     if(!req.body.user) req.body.user = req.user.id
+    next()
+}
 
-    const newReview = await Review.create(req.body);
+const getAllReviews = factory.getAll(Review)
 
-    res.status(201).json({
-        status:"success",
-        data: {
-            newReview
-        }
-    })
-})
+const getReview = factory.getOne(Review)
+
+const createReview = factory.createOne(Review)
+
+const updateReview = factory.updateOne(Review)
+
+const deleteReview = factory.deleteOne(Review)
 
 module.exports = {
     getAllReviews,
-    createReview
+    createReview,
+    deleteReview,
+    updateReview,
+    setTourUserIds,
+    getReview
 }
