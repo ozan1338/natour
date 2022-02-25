@@ -1,6 +1,7 @@
 const Tour = require('./../model/tourModel')
 const catchAsync = require('./../utils/catchAsync')
 const factory = require('./handlerFactory')
+const AppError = require('./../utils/appError')
 
 // const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`))
 
@@ -112,6 +113,69 @@ const getMonthlyPlan = catchAsync(async(req,res,next) => {
     })
 })
 
+//34.07250417214612,-118.3259384429614
+const getTourWithin = catchAsync(async (req,res,next) => {
+    const {distance, latlng, unit} = req.params;
+    const [lat, lng] = latlng.split(',')
+
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+    if(!lat || !lng) {
+        next(new AppError('Please Provide latitude and longitude in the format lat,lng', 400))
+    }
+
+    const tours = await Tour.find({ 
+        startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } } 
+    })
+
+    res.status(200).send({
+        status: 'success',
+        result: tours.length,
+        data: {
+            tours
+        }
+    })
+})
+
+const getDistances = catchAsync(async (req,res,next) => {
+    const {latlng, unit} = req.params;
+    const [lat, lng] = latlng.split(',')
+
+    const multiplier = unit === 'mi' ? 0.000621371 : 0.001
+
+    if(!lat || !lng) {
+        next(new AppError('Please Provide latitude and longitude in the format lat,lng', 400))
+    }
+
+    const distances = await Tour.aggregate([
+        {
+            $geoNear: {
+                near: {
+                    type: 'Point',
+                    coordinates: [lng * 1, lat * 1]
+                },
+                distanceField: 'distance',
+                distanceMultiplier: multiplier
+            }
+        },
+        {
+            $project: {
+                distance: 1,
+                name: 1
+            }
+        }
+    ])
+
+    console.log('ciao')
+
+    res.status(200).send({
+        status: 'success',
+        data: {
+            data: distances
+        }
+    })
+})
+
 module.exports = {
     getAllTours,
     getTour,
@@ -120,5 +184,7 @@ module.exports = {
     deleteTour,
     aliastTopTours,
     getTourStats,
-    getMonthlyPlan
+    getMonthlyPlan,
+    getTourWithin,
+    getDistances
 }
