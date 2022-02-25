@@ -14,14 +14,17 @@ const {
 // POST /tour/1221/reviews
 // POST /reviews/
 
+router.use(protect)
+
 router
   .route("/")
   .get(getAllReviews)
-  .post(protect, restrictTo("user"), setTourUserIds , createReview);
-router
+  .post(restrictTo("user"), setTourUserIds , createReview);
+
+  router
   .route("/:id")
-  .delete(protect, restrictTo("admin", "lead-guide"), deleteReview)
-  .patch(updateReview)
-  .get(getReview);
+  .get(getReview)
+  .delete(restrictTo("admin", "user"), deleteReview)
+  .patch(restrictTo("admin", "user"), updateReview)
 
 module.exports = router;
